@@ -1,5 +1,6 @@
 packages:
   - 'packages/**'
+  - 'sui-port-example'
   - '!**/dist/**'
   - '!**/.next/**'
   - '!packages/create-dapp/templates'
