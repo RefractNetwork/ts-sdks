@@ -25,6 +25,7 @@ import { createInMemoryStore } from '../utils/stateStorage.js';
 import { getRegisteredWallets } from '../utils/walletUtils.js';
 import { createWalletStore } from '../walletStore.js';
 import { InjectedThemeStyles } from './styling/InjectedThemeStyles.js';
+import { TelegramProvider } from './TelegramProvider.js';
 
 export type WalletProviderProps = {
 	/** A list of wallets that are sorted to the top of the wallet list, if they are available to connect to. By default, wallets are sorted by the order they are loaded in. */
@@ -78,16 +79,18 @@ export function WalletProvider({
 
 	return (
 		<WalletContext.Provider value={storeRef.current}>
-			<WalletConnectionManager
-				preferredWallets={preferredWallets}
-				walletFilter={walletFilter}
-				enableUnsafeBurner={enableUnsafeBurner}
-				stashedWallet={stashedWallet}
-			>
-				{/* TODO: We ideally don't want to inject styles if people aren't using the UI components */}
-				{theme ? <InjectedThemeStyles theme={theme} /> : null}
-				{children}
-			</WalletConnectionManager>
+			<TelegramProvider>
+				<WalletConnectionManager
+					preferredWallets={preferredWallets}
+					walletFilter={walletFilter}
+					enableUnsafeBurner={enableUnsafeBurner}
+					stashedWallet={stashedWallet}
+				>
+					{/* TODO: We ideally don't want to inject styles if people aren't using the UI components */}
+					{theme ? <InjectedThemeStyles theme={theme} /> : null}
+					{children}
+				</WalletConnectionManager>
+			</TelegramProvider>
 		</WalletContext.Provider>
 	);
 }
