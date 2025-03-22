@@ -3,7 +3,7 @@ import type * as TelegramSDK from '@telegram-apps/sdk';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 type TelegramContextType = {
-	isTelegramInitialized: boolean;
+	isTMA: boolean;
 	Telegram: typeof TelegramSDK;
 };
 
@@ -22,20 +22,26 @@ type TelegramProviderProps = {
 };
 
 export const TelegramProvider = ({ children }: TelegramProviderProps) => {
-	const [isTelegramInitialized, setTelegramInitialized] = useState(false);
+	const [isTMA, setIsTMA] = useState(false);
 	const [Telegram, setTelegram] = useState<typeof TelegramSDK | null>(null);
 
 	useEffect(() => {
 		const initializeTelegram = async () => {
 			try {
-				const telegram = await import('@telegram-apps/sdk');
-				telegram.init();
-				setTelegramInitialized(true);
-				setTelegram(telegram);
-				console.log('Telegram SDK initialized');
+				const bridge = await import('@telegram-apps/bridge');
+				if (await bridge.isTMA()) {
+					const telegram = await import('@telegram-apps/sdk');
+					telegram.init();
+					console.log(telegram.retrieveRawInitData());
+					setIsTMA(true);
+					setTelegram(telegram);
+					console.log('Telegram SDK initialized');
+				} else {
+					console.log('You are outside of Telegram, using Sui dapp-kit');
+				}
 			} catch (error) {
 				console.error('Failed to initialize Telegram SDK:', error);
-				setTelegramInitialized(false);
+				setIsTMA(false);
 			}
 		};
 
@@ -43,7 +49,7 @@ export const TelegramProvider = ({ children }: TelegramProviderProps) => {
 	}, []);
 
 	const value: TelegramContextType = {
-		isTelegramInitialized,
+		isTMA,
 		Telegram,
 	};
 
